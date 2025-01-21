@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: GrassHillRight
   m_EditorClassIdentifier: 
   m_Sprite: {fileID: 21300000, guid: 4ff6d2a691ef23440917c9d6ad690916, type: 3}
-  m_Color: {r: 0.6226417, g: 0.11395521, b: 0.11395521, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Transform:
     e00: 1
     e01: 0

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: GrassColumn
   m_EditorClassIdentifier: 
   m_Sprite: {fileID: 21300000, guid: 373e54a92a405164b88b39325f108fc3, type: 3}
-  m_Color: {r: 0.65557474, g: 0.195548, b: 0.195548, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Transform:
     e00: 1
     e01: 0

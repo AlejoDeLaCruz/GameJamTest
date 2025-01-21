@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: GrassCliffLeft
   m_EditorClassIdentifier: 
   m_Sprite: {fileID: 21300000, guid: 595a4379816455e409d18ea6587a205a, type: 3}
-  m_Color: {r: 0.7626072, g: 0.59164196, b: 0.59164196, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Transform:
     e00: 1
     e01: 0

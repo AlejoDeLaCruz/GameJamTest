@@ -7,6 +7,8 @@ public class ScreenFade : MonoBehaviour
     public Image blackScreen; // Arrastra la imagen negra aquí desde el inspector.
     public float fadeDuration = 1f; // Tiempo para desvanecer la pantalla.
 
+    private float currentFadeAlpha = 0f; // Almacena la opacidad actual del fade.
+
     private void Start()
     {
         // Asegúrate de que la pantalla esté transparente al inicio.
@@ -36,12 +38,14 @@ public class ScreenFade : MonoBehaviour
         while (elapsedTime < fadeDuration)
         {
             elapsedTime += Time.deltaTime;
-            color.a = elapsedTime / fadeDuration; // Incrementa la opacidad.
+            currentFadeAlpha = elapsedTime / fadeDuration; // Incrementa la opacidad.
+            color.a = currentFadeAlpha;
             blackScreen.color = color;
             yield return null;
         }
 
-        color.a = 1f; // Asegúrate de que la pantalla esté completamente negra.
+        currentFadeAlpha = 1f; // Asegúrate de que la pantalla esté completamente negra.
+        color.a = currentFadeAlpha;
         blackScreen.color = color;
     }
 
@@ -54,12 +58,14 @@ public class ScreenFade : MonoBehaviour
         while (elapsedTime < fadeDuration)
         {
             elapsedTime += Time.deltaTime;
-            color.a = 1f - (elapsedTime / fadeDuration); // Reduce la opacidad.
+            currentFadeAlpha = 1f - (elapsedTime / fadeDuration); // Reduce la opacidad.
+            color.a = currentFadeAlpha;
             blackScreen.color = color;
             yield return null;
         }
 
-        color.a = 0f; // Asegúrate de que la pantalla esté completamente transparente.
+        currentFadeAlpha = 0f; // Asegúrate de que la pantalla esté completamente transparente.
+        color.a = currentFadeAlpha;
         blackScreen.color = color;
     }
 
@@ -69,5 +75,11 @@ public class ScreenFade : MonoBehaviour
         Color color = blackScreen.color;
         color.a = alpha;
         blackScreen.color = color;
+    }
+
+    // Método para verificar si la pantalla está completamente negra.
+    public bool IsScreenBlack()
+    {
+        return currentFadeAlpha == 1f; // La pantalla está negra si la opacidad es 1.
     }
 }

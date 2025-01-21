@@ -10,6 +10,9 @@ public class Life : MonoBehaviour
     [SerializeField] private Movement playerMovement; // Referencia al script de movimiento
     [SerializeField] private Timer countdownTimer; // Referencia al script Timer
 
+    public delegate void GameOverAction(); // Definimos un delegado para el evento de Game Over
+    public event GameOverAction OnGameOver; // Evento que se activará cuando la escala Y sea 0
+
     private Vector3 escalaOriginal;
 
     void Start()
@@ -41,9 +44,6 @@ public class Life : MonoBehaviour
     {
         if (spriteRenderer == null || countdownTimer == null) return; // Evitar errores si no se encuentra el SpriteRenderer o Timer
 
-        // Mostrar en consola si el modo peligro está activado
-        Debug.Log("Modo peligro: " + modoPeligro);
-
         // Verificar si el temporizador ha llegado a 0 y activar el modo peligro
         if (countdownTimer != null && countdownTimer.currentTime == 0f)
         {
@@ -60,7 +60,12 @@ public class Life : MonoBehaviour
             if (spriteRenderer.transform.localScale.y > 0f) // No queremos que la escala sea negativa
             {
                 spriteRenderer.transform.localScale -= new Vector3(0, velocidadReduccion * Time.deltaTime, 0);
-                Debug.Log("Reduciendo escala: " + spriteRenderer.transform.localScale);
+                //Debug.Log("Reduciendo escala: " + spriteRenderer.transform.localScale);
+            }
+            else
+            {
+                // Cuando la escala Y llegue a 0 (lo que implica que el jugador ha perdido)
+                OnGameOver?.Invoke(); // Invocar el evento de Game Over
             }
         }
 
@@ -91,6 +96,4 @@ public class Life : MonoBehaviour
         if (vidaActual < 0f) vidaActual = 0f; // Aseguramos que la vida no sea menor que 0
         CambiarModoPeligro(true); // Activamos el modo peligro al reducir vida
     }
-
-    // Eliminamos el método RestaurarVida, ya que la vida no se restaura
 }

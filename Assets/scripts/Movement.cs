@@ -34,6 +34,12 @@ public class Movement : MonoBehaviour
 
     void Update()
     {
+        // No permitir el movimiento si la pantalla está en negro.
+        if (screenFade != null && screenFade.IsScreenBlack())
+        {
+            return; // Si la pantalla está negra, no permitir que el jugador se mueva.
+        }
+
         // Ajusta la velocidad según el estado (sobre hielo o no).
         currentRunSpeed = onIceFloor ? baseSpeed * iceSpeedMultiplier : baseSpeed;
 

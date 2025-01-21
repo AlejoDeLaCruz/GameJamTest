@@ -5,6 +5,10 @@ public class Life : MonoBehaviour
     [SerializeField] private bool modoPeligro = false; // Variable para activar el modo peligro
     [SerializeField] private float velocidadReduccion = 0.7f; // Velocidad con la que se reducirá la escala en Y
     [SerializeField] private SpriteRenderer spriteRenderer; // SpriteRenderer para modificar la escala
+    [SerializeField] private float vidaMaxima = 100f; // Vida máxima del jugador
+    [SerializeField] private float vidaActual = 100f; // Vida actual del jugador
+    [SerializeField] private Movement playerMovement; // Referencia al script de movimiento
+    [SerializeField] private Timer countdownTimer; // Referencia al script Timer
 
     private Vector3 escalaOriginal;
 
@@ -25,29 +29,51 @@ public class Life : MonoBehaviour
         {
             escalaOriginal = spriteRenderer.transform.localScale;
         }
+
+        // Verificamos si el countdownTimer está asignado correctamente
+        if (countdownTimer == null)
+        {
+            Debug.LogError("El Timer no está asignado.");
+        }
     }
 
     void Update()
     {
-        if (spriteRenderer == null) return; // Evitar errores si no se encuentra el SpriteRenderer
+        if (spriteRenderer == null || countdownTimer == null) return; // Evitar errores si no se encuentra el SpriteRenderer o Timer
 
         // Mostrar en consola si el modo peligro está activado
         Debug.Log("Modo peligro: " + modoPeligro);
 
+        // Verificar si el temporizador ha llegado a 0 y activar el modo peligro
+        if (countdownTimer != null && countdownTimer.currentTime == 0f)
+        {
+            CambiarModoPeligro(true); // Activar el modo peligro cuando el temporizador llegue a 0
+        }
+        else
+        {
+            CambiarModoPeligro(false); // Desactivar el modo peligro cuando el temporizador no está en 0
+        }
+
         if (modoPeligro)
         {
-            // Reducir la escala en el eje Y
-            if (spriteRenderer.transform.localScale.y > escalaOriginal.y * 0.1f) // Limitar para evitar que se reduzca demasiado
+            // Reducir la escala en el eje Y (permitiendo que se desaparezca completamente)
+            if (spriteRenderer.transform.localScale.y > 0f) // No queremos que la escala sea negativa
             {
                 spriteRenderer.transform.localScale -= new Vector3(0, velocidadReduccion * Time.deltaTime, 0);
                 Debug.Log("Reduciendo escala: " + spriteRenderer.transform.localScale);
             }
         }
-        else
+
+        // No restaurar la escala cuando el modo peligro está desactivado
+        // Así el jugador no volverá a la escala original cuando el modoPeligro sea false.
+
+        // Ajustar la velocidad del jugador en función de la vida restante
+        if (playerMovement != null)
         {
-            // Volver a la escala original
-            spriteRenderer.transform.localScale = Vector3.Lerp(spriteRenderer.transform.localScale, escalaOriginal, Time.deltaTime * velocidadReduccion);
-            Debug.Log("Restaurando escala: " + spriteRenderer.transform.localScale);
+            // A medida que la vida disminuye, aumenta la velocidad
+            float porcentajeVida = vidaActual / vidaMaxima;
+            float velocidadExtra = (1f - porcentajeVida) * 5f; // Cuanto menos vida, más velocidad (hasta un máximo de 5)
+            playerMovement.AdjustSpeed(velocidadExtra);
         }
     }
 
@@ -61,13 +87,10 @@ public class Life : MonoBehaviour
     // Método para reducir la vida, pero el movimiento sigue activo
     public void ReducirVida(float amount)
     {
-        // Aquí, podrías reducir la vida y activar el modo peligro
+        vidaActual -= amount; // Reducimos la vida
+        if (vidaActual < 0f) vidaActual = 0f; // Aseguramos que la vida no sea menor que 0
         CambiarModoPeligro(true); // Activamos el modo peligro al reducir vida
     }
 
-    // Método para restaurar la vida
-    public void RestaurarVida(float amount)
-    {
-        CambiarModoPeligro(false); // Desactivamos el modo peligro cuando se restaura vida
-    }
+    // Eliminamos el método RestaurarVida, ya que la vida no se restaura
 }

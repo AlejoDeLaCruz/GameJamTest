@@ -7,7 +7,28 @@ public class Papers : MonoBehaviour
 
     private bool playerInRange = false; // Indica si el jugador está en el rango del objeto.
     private Inventory playerInventory; // Referencia al inventario del jugador.
+    private Movement playerMovement; // Referencia al script de movimiento.
     private bool inEmptyZone = false; // Indica si el objeto está en la zona que vacía el inventario.
+
+    // Variables para ajustes de velocidad.
+    private float speedAdjustment = 0f; // Ajuste por defecto.
+
+    private void Start()
+    {
+        // Determinamos el ajuste de velocidad según la layer del objeto.
+        if (gameObject.layer == LayerMask.NameToLayer("heavyPaper"))
+        {
+            speedAdjustment = -3f; // Reducir significativamente la velocidad.
+        }
+        else if (gameObject.layer == LayerMask.NameToLayer("midPaper"))
+        {
+            speedAdjustment = -2f; // Reducir moderadamente la velocidad.
+        }
+        else if (gameObject.layer == LayerMask.NameToLayer("lightPaper"))
+        {
+            speedAdjustment = 0f; // Sin ajuste.
+        }
+    }
 
     private void Update()
     {
@@ -16,8 +37,22 @@ public class Papers : MonoBehaviour
         {
             if (playerInventory != null)
             {
-                playerInventory.AddItem(this); // Agregamos el objeto al inventario.
-                gameObject.SetActive(false); // Desactivamos el objeto en la escena.
+                // Si ya hay un objeto en el inventario, lo soltamos.
+                if (playerInventory.currentItem != null)
+                {
+                    DropItem(playerInventory.currentItem);
+                }
+
+                // Agregamos el nuevo objeto al inventario.
+                playerInventory.AddItem(this);
+
+                // Ajustamos la velocidad del jugador según el tipo de objeto.
+                if (playerMovement != null)
+                {
+                    playerMovement.AdjustSpeed(speedAdjustment);
+                }
+
+                gameObject.SetActive(false); // Desactivamos este objeto en la escena.
             }
         }
     }
@@ -28,6 +63,7 @@ public class Papers : MonoBehaviour
         {
             playerInRange = true; // Jugador entra en el rango.
             playerInventory = collision.GetComponent<Inventory>(); // Guardamos la referencia al inventario.
+            playerMovement = collision.GetComponent<Movement>(); // Guardamos la referencia al movimiento.
         }
 
         // Detectamos si el objeto entra en la zona que vacía el inventario.
@@ -44,6 +80,7 @@ public class Papers : MonoBehaviour
         {
             playerInRange = false; // Jugador sale del rango.
             playerInventory = null; // Eliminamos la referencia al inventario.
+            playerMovement = null; // Eliminamos la referencia al movimiento.
         }
 
         // Detectamos si el objeto sale de la zona que vacía el inventario.
@@ -55,10 +92,23 @@ public class Papers : MonoBehaviour
 
     private void HandleEmptyZone()
     {
-        if (inEmptyZone)
+        if (inEmptyZone && playerInventory != null && playerInventory.currentItem == this)
         {
-            Debug.Log($"El objeto {itemName} desapareció al entrar en la zona que vacía el inventario.");
-            gameObject.SetActive(false); // Desactiva el objeto en la escena.
+            Debug.Log($"El objeto {itemName} fue destruido al entrar en la zona que vacía el inventario.");
+            playerInventory.RemoveCurrentItem(); // Removemos el objeto del inventario.
+
+            Destroy(gameObject); // Destruimos el objeto en la escena.
         }
+    }
+
+    private void DropItem(Papers itemToDrop)
+    {
+        Debug.Log($"Soltaste: {itemToDrop.itemName}");
+
+        // Activamos el objeto soltado y lo colocamos en la posición del jugador.
+        itemToDrop.gameObject.SetActive(true);
+        itemToDrop.transform.position = playerInventory.transform.position;
+        itemToDrop.transform.SetParent(null); // Lo desacoplamos del jugador.
+
     }
 }

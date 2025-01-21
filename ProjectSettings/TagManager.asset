@@ -11,12 +11,12 @@ TagManager:
   - isGround
   - Water
   - UI
-  - paper
-  - 
-  - 
-  - 
-  - 
-  - 
+  - heavyPaper
+  - midPaper
+  - lightPaper
+  - iceFloor
+  - deadlyFloor
+  - breakableFloor
   - 
   - 
   - 

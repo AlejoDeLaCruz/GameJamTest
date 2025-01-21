@@ -46,4 +46,13 @@ public class Inventory : MonoBehaviour
             Debug.Log("Inventario: Vacío");
         }
     }
+
+    public void RemoveCurrentItem()
+    {
+        if (currentItem != null)
+        {
+            currentItem = null;
+            Debug.Log("El inventario está ahora vacío.");
+        }
+    }
 }

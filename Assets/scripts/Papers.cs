@@ -5,20 +5,20 @@ public class Papers : MonoBehaviour
     public string itemName; // Nombre del objeto.
     public Sprite itemIcon; // Icono del objeto.
     public Transform attachPoint; // Punto donde se adherirá el objeto.
+    public delegate void ItemDestroyed(Vector3 spawnPosition); // Evento con la posición del spawn.
+    public event ItemDestroyed onItemDestroyed; // Evento que se llama cuando el objeto se destruye.
+    public AudioSource audioSource; // Componente de AudioSource para reproducir sonidos.
 
-    public AudioSource audioSource; // Componente de AudioSource para reproducir sonidos. (Nuevo)
+    private bool playerInRange = false;
+    private Inventory playerInventory;
+    private Movement playerMovement;
+    private bool inEmptyZone = false;
 
-    private bool playerInRange = false; // Indica si el jugador está en el rango del objeto.
-    private Inventory playerInventory; // Referencia al inventario del jugador.
-    private Movement playerMovement; // Referencia al script de movimiento.
-    private bool inEmptyZone = false; // Indica si el objeto está en la zona que vacía el inventario.
-
-    // Variables para ajustes de velocidad.
-    private float speedAdjustment = 0f; // Ajuste por defecto.
+    private float speedAdjustment = 0f;
 
     private void Start()
     {
-        // Determina el ajuste de velocidad según el layer del objeto.
+        // Ajuste de velocidad según el layer del objeto.
         switch (LayerMask.LayerToName(gameObject.layer))
         {
             case "heavyPaper":
@@ -35,40 +35,40 @@ public class Papers : MonoBehaviour
                 break;
         }
 
-        // Validar si el AudioSource está configurado.
         if (audioSource == null)
         {
             audioSource = GetComponent<AudioSource>();
             if (audioSource == null)
             {
-                Debug.LogWarning("No se encontró un AudioSource en el objeto. Asegúrate de agregar uno.");
+                Debug.LogWarning("No se encontró un AudioSource en el objeto.");
             }
+        }
+    }
+
+    private void OnDestroy()
+    {
+        // Llamar al evento cuando el objeto sea destruido.
+        if (onItemDestroyed != null)
+        {
+            onItemDestroyed.Invoke(transform.position); // Pasar la posición del objeto al invocar el evento.
         }
     }
 
     private void Update()
     {
-        // Verificamos si el jugador está en rango y presiona la tecla E.
         if (playerInRange && Input.GetKeyDown(KeyCode.E))
         {
             if (playerInventory != null)
             {
-                // Si ya hay un objeto en el inventario, lo soltamos.
                 if (playerInventory.currentItem != null)
                 {
                     DropItem(playerInventory.currentItem);
                 }
 
-                // Agregamos el nuevo objeto al inventario.
                 playerInventory.AddItem(this);
-
-                // Ajustamos la velocidad del jugador según el tipo de objeto.
                 playerMovement?.AdjustSpeed(speedAdjustment);
-
-                // Adjuntamos el objeto al punto de agarre.
                 AttachToPlayer();
 
-                // Reproducir el sonido del objeto.
                 if (audioSource != null)
                 {
                     audioSource.Play();
@@ -85,7 +85,6 @@ public class Papers : MonoBehaviour
             playerInventory = collision.GetComponent<Inventory>();
             playerMovement = collision.GetComponent<Movement>();
 
-            // Validar si el punto de agarre está asignado.
             if (playerInventory != null && attachPoint == null)
             {
                 attachPoint = playerInventory.transform.Find("AttachPoint");
@@ -96,7 +95,6 @@ public class Papers : MonoBehaviour
             }
         }
 
-        // Detectamos si el objeto entra en la zona que vacía el inventario.
         if (collision.GetComponent<HolePatching>() != null)
         {
             inEmptyZone = true;
@@ -113,7 +111,6 @@ public class Papers : MonoBehaviour
             playerMovement = null;
         }
 
-        // Detectamos si el objeto sale de la zona que vacía el inventario.
         if (collision.GetComponent<HolePatching>() != null)
         {
             inEmptyZone = false;
@@ -125,11 +122,7 @@ public class Papers : MonoBehaviour
         if (inEmptyZone && playerInventory != null && playerInventory.currentItem == this)
         {
             Debug.Log($"El objeto {itemName} fue destruido al entrar en la zona que vacía el inventario.");
-
-            // Removemos el objeto del inventario.
             playerInventory.RemoveCurrentItem();
-
-            // Destruimos el objeto en la escena.
             Destroy(gameObject);
         }
     }
@@ -138,11 +131,9 @@ public class Papers : MonoBehaviour
     {
         if (attachPoint != null)
         {
-            // Mueve el objeto al punto de agarre y lo hace hijo de este.
             transform.SetParent(attachPoint);
             transform.localPosition = Vector3.zero;
             transform.localRotation = Quaternion.identity;
-
             Debug.Log($"El objeto {itemName} se ha adherido al jugador.");
         }
         else
@@ -154,8 +145,6 @@ public class Papers : MonoBehaviour
     private void DropItem(Papers itemToDrop)
     {
         Debug.Log($"Soltaste: {itemToDrop.itemName}");
-
-        // Desacopla el objeto y lo coloca en la posición actual del jugador.
         itemToDrop.transform.SetParent(null);
         itemToDrop.transform.position = playerInventory.transform.position;
     }

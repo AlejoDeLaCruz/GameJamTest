@@ -4,6 +4,7 @@ public class HolePatching : MonoBehaviour
 {
     public Timer countdownTimer; // Referencia al script que controla el temporizador.
     public AudioSource emptyZoneSound; // Componente de AudioSource para reproducir el sonido al entrar en la zona vacía. (Nuevo)
+    public ItemSpawner itemSpawner; // Referencia al ItemSpawner para notificar la reaparición del objeto.
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -61,6 +62,12 @@ public class HolePatching : MonoBehaviour
                 {
                     playerMovement.ResetSpeed(); // Ajuste a velocidad base (sin ningún objeto).
                 }
+
+                //// Notificamos al ItemSpawner para que maneje la reaparición del objeto.
+                //if (itemSpawner != null)
+                //{
+                //    itemSpawner.HandleItemDestroyed(); // Llamamos al método en el ItemSpawner.
+                //}
             }
             else
             {

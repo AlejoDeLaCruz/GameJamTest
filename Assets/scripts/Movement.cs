@@ -34,31 +34,30 @@ public class Movement : MonoBehaviour
 
     void Update()
     {
-        // No permitir el movimiento si la pantalla está en negro.
-        if (screenFade != null && screenFade.IsScreenBlack())
+        // Solo ajustar la velocidad base si no está en una superficie especial.
+        if (!onIceFloor)
         {
-            return; // Si la pantalla está negra, no permitir que el jugador se mueva.
+            horizontalMove = Input.GetAxisRaw("Horizontal") * currentRunSpeed;
         }
-
-        // Ajusta la velocidad según el estado (sobre hielo o no).
-        currentRunSpeed = onIceFloor ? baseSpeed * iceSpeedMultiplier : baseSpeed;
-
-        horizontalMove = Input.GetAxisRaw("Horizontal") * currentRunSpeed;
+        else
+        {
+            horizontalMove = Input.GetAxisRaw("Horizontal") * baseSpeed * iceSpeedMultiplier;
+        }
 
         if (Input.GetButtonDown("Jump"))
         {
             jump = true;
 
-            // Salto desde la pared.
             if (isWallSliding)
             {
                 WallJump();
             }
         }
 
-        // Detecta si el jugador debe deslizarse por la pared.
         CheckWallSliding();
     }
+
+
 
     void FixedUpdate()
     {
@@ -145,7 +144,13 @@ public class Movement : MonoBehaviour
     // Método para ajustar la velocidad.
     public void AdjustSpeed(float speedAdjustment)
     {
-        currentRunSpeed = baseSpeed + speedAdjustment; // Asegúrate de que se sume correctamente
-        Debug.Log("Velocidad ajustada: " + currentRunSpeed); // Para ver en consola si la velocidad cambia
+        currentRunSpeed += speedAdjustment;
+        Debug.Log($"Velocidad ajustada: {currentRunSpeed}");
+    }
+
+    public void ResetSpeed()
+    {
+        currentRunSpeed = baseSpeed; // Restablece la velocidad a su valor base.
+        Debug.Log($"Velocidad restablecida a: {currentRunSpeed}");
     }
 }

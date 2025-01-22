@@ -58,7 +58,7 @@ public class HolePatching : MonoBehaviour
                 // Restauramos la velocidad al valor base al salir de la zona.
                 if (playerMovement != null)
                 {
-                    playerMovement.AdjustSpeed(0f); // Ajuste a velocidad base (sin ningún objeto).
+                    playerMovement.ResetSpeed(); // Ajuste a velocidad base (sin ningún objeto).
                 }
             }
             else

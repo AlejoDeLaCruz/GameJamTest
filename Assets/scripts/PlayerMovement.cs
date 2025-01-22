@@ -13,7 +13,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Transform m_GroundCheck;
     [SerializeField] private Transform m_CeilingCheck;
     [SerializeField] private Collider2D m_CrouchDisableCollider;
-    [SerializeField] private float m_MaxSlopeAngle = 45f; // MÃ¡ximo Ã¡ngulo de pendiente que el jugador puede subir
+    [SerializeField] private float m_MaxSlopeAngle = 45f; // Máximo ángulo de pendiente que el jugador puede subir
 
     [Range(0, 1)][SerializeField] private float m_AirControlFactor = 0.5f; // Control en el aire (1 = control completo)
 
@@ -54,7 +54,7 @@ public class PlayerMovement : MonoBehaviour
         bool wasGrounded = m_Grounded;
         m_Grounded = false;
 
-        // Combinar todas las mÃ¡scaras de suelo para la detecciÃ³n
+        // Combinar todas las máscaras de suelo para la detección
         LayerMask combinedGroundMask = m_WhatIsGround | m_AdditionalGround | m_AdditionalGround2;
 
         Collider2D[] colliders = Physics2D.OverlapCircleAll(m_GroundCheck.position, k_GroundedRadius, combinedGroundMask);
@@ -128,7 +128,7 @@ public class PlayerMovement : MonoBehaviour
 
             // Obtener la escala actual del jugador (eje Y) y modificar la velocidad
             float scaleY = transform.localScale.y;
-            float speedMultiplier = 4f / scaleY; // Cuanto mÃ¡s pequeÃ±a la escala, mÃ¡s rÃ¡pido se mueve
+            float speedMultiplier = 4f / scaleY; // Cuanto más pequeña la escala, más rápido se mueve
 
             Vector2 targetVelocity = new Vector2(move * 10f * controlFactor * speedMultiplier, m_Rigidbody2D.linearVelocity.y);
             m_Rigidbody2D.linearVelocity = Vector2.Lerp(m_Rigidbody2D.linearVelocity, targetVelocity, m_MovementSmoothing);

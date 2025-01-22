@@ -15,18 +15,22 @@ public class Papers : MonoBehaviour
 
     private void Start()
     {
-        // Determinamos el ajuste de velocidad según la layer del objeto.
-        if (gameObject.layer == LayerMask.NameToLayer("heavyPaper"))
+        // Validar que el layer exista.
+        if (LayerMask.LayerToName(gameObject.layer) == "heavyPaper")
         {
-            speedAdjustment = -432f; // Reducir significativamente la velocidad.
+            speedAdjustment = -1.5f; // Reducir significativamente la velocidad.
         }
-        else if (gameObject.layer == LayerMask.NameToLayer("midPaper"))
+        else if (LayerMask.LayerToName(gameObject.layer) == "midPaper")
         {
-            speedAdjustment = -323f; // Reducir moderadamente la velocidad.
+            speedAdjustment = -1f; // Reducir moderadamente la velocidad.
         }
-        else if (gameObject.layer == LayerMask.NameToLayer("lightPaper"))
+        else if (LayerMask.LayerToName(gameObject.layer) == "lightPaper")
         {
             speedAdjustment = 0f; // Sin ajuste.
+        }
+        else
+        {
+            Debug.LogWarning($"El objeto {gameObject.name} tiene un layer desconocido.");
         }
     }
 
@@ -95,9 +99,13 @@ public class Papers : MonoBehaviour
         if (inEmptyZone && playerInventory != null && playerInventory.currentItem == this)
         {
             Debug.Log($"El objeto {itemName} fue destruido al entrar en la zona que vacía el inventario.");
-            playerInventory.RemoveCurrentItem(); // Removemos el objeto del inventario.
+            Debug.Log(playerMovement + "PLAYYEEER");
 
-            Destroy(gameObject); // Destruimos el objeto en la escena.
+            // Removemos el objeto del inventario.
+            playerInventory.RemoveCurrentItem();
+
+            // Destruimos el objeto en la escena.
+            Destroy(gameObject);
         }
     }
 

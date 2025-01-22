@@ -6,6 +6,8 @@ public class Papers : MonoBehaviour
     public Sprite itemIcon; // Icono del objeto.
     public Transform attachPoint; // Punto donde se adherirá el objeto.
 
+    public AudioSource audioSource; // Componente de AudioSource para reproducir sonidos. (Nuevo)
+
     private bool playerInRange = false; // Indica si el jugador está en el rango del objeto.
     private Inventory playerInventory; // Referencia al inventario del jugador.
     private Movement playerMovement; // Referencia al script de movimiento.
@@ -32,6 +34,16 @@ public class Papers : MonoBehaviour
                 Debug.LogWarning($"El objeto {gameObject.name} tiene un layer desconocido.");
                 break;
         }
+
+        // Validar si el AudioSource está configurado.
+        if (audioSource == null)
+        {
+            audioSource = GetComponent<AudioSource>();
+            if (audioSource == null)
+            {
+                Debug.LogWarning("No se encontró un AudioSource en el objeto. Asegúrate de agregar uno.");
+            }
+        }
     }
 
     private void Update()
@@ -55,6 +67,12 @@ public class Papers : MonoBehaviour
 
                 // Adjuntamos el objeto al punto de agarre.
                 AttachToPlayer();
+
+                // Reproducir el sonido del objeto.
+                if (audioSource != null)
+                {
+                    audioSource.Play();
+                }
             }
         }
     }

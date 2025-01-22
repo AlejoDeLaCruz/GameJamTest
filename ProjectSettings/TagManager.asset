@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Wall
   - ScoreCounter
+  - changeCamera
   layers:
   - Default
   - TransparentFX

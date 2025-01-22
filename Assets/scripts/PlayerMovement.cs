@@ -8,6 +8,8 @@ public class PlayerMovement : MonoBehaviour
     [Range(0, .3f)][SerializeField] private float m_MovementSmoothing = .05f;
     [SerializeField] private bool m_AirControl = false;
     [SerializeField] private LayerMask m_WhatIsGround;
+    [SerializeField] private LayerMask m_AdditionalGround;
+    [SerializeField] private LayerMask m_AdditionalGround2; // Nueva capa de suelo
     [SerializeField] private Transform m_GroundCheck;
     [SerializeField] private Transform m_CeilingCheck;
     [SerializeField] private Collider2D m_CrouchDisableCollider;
@@ -52,7 +54,10 @@ public class PlayerMovement : MonoBehaviour
         bool wasGrounded = m_Grounded;
         m_Grounded = false;
 
-        Collider2D[] colliders = Physics2D.OverlapCircleAll(m_GroundCheck.position, k_GroundedRadius, m_WhatIsGround);
+        // Combinar todas las máscaras de suelo para la detección
+        LayerMask combinedGroundMask = m_WhatIsGround | m_AdditionalGround | m_AdditionalGround2;
+
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(m_GroundCheck.position, k_GroundedRadius, combinedGroundMask);
         for (int i = 0; i < colliders.Length; i++)
         {
             if (colliders[i].gameObject != gameObject)
@@ -68,7 +73,8 @@ public class PlayerMovement : MonoBehaviour
     {
         if (!crouch)
         {
-            if (Physics2D.OverlapCircle(m_CeilingCheck.position, k_CeilingRadius, m_WhatIsGround))
+            LayerMask combinedGroundMask = m_WhatIsGround | m_AdditionalGround | m_AdditionalGround2;
+            if (Physics2D.OverlapCircle(m_CeilingCheck.position, k_CeilingRadius, combinedGroundMask))
             {
                 crouch = true;
             }
@@ -79,7 +85,8 @@ public class PlayerMovement : MonoBehaviour
             float controlFactor = m_Grounded ? 1 : m_AirControlFactor; // Reducir control en el aire
 
             // Detectar pendiente
-            RaycastHit2D hit = Physics2D.Raycast(m_GroundCheck.position, Vector2.down, 2f, m_WhatIsGround);
+            LayerMask combinedGroundMask = m_WhatIsGround | m_AdditionalGround | m_AdditionalGround2;
+            RaycastHit2D hit = Physics2D.Raycast(m_GroundCheck.position, Vector2.down, 2f, combinedGroundMask);
             if (hit.collider != null)
             {
                 float slopeAngle = Vector2.Angle(hit.normal, Vector2.up);

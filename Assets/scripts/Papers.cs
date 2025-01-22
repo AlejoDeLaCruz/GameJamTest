@@ -18,11 +18,11 @@ public class Papers : MonoBehaviour
         // Determinamos el ajuste de velocidad según la layer del objeto.
         if (gameObject.layer == LayerMask.NameToLayer("heavyPaper"))
         {
-            speedAdjustment = -3f; // Reducir significativamente la velocidad.
+            speedAdjustment = -432f; // Reducir significativamente la velocidad.
         }
         else if (gameObject.layer == LayerMask.NameToLayer("midPaper"))
         {
-            speedAdjustment = -2f; // Reducir moderadamente la velocidad.
+            speedAdjustment = -323f; // Reducir moderadamente la velocidad.
         }
         else if (gameObject.layer == LayerMask.NameToLayer("lightPaper"))
         {

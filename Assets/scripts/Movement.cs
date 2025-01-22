@@ -7,7 +7,7 @@ public class Movement : MonoBehaviour
 {
     public PlayerMovement controller;
 
-    [SerializeField] private float baseSpeed = 5f; // Velocidad base del jugador
+    [SerializeField] private float baseSpeed = 4f; // Velocidad base del jugador
     [SerializeField] private float iceSpeedMultiplier; // Multiplicador de velocidad en hielo.
     [SerializeField] private ScreenFade screenFade; // Referencia al script de fade.
 
@@ -21,7 +21,7 @@ public class Movement : MonoBehaviour
 
     // --- Variables para pared ---
     [SerializeField] private float wallSlideSpeed = 2f; // Velocidad al deslizarse en la pared.
-    [SerializeField] private float wallJumpForce = 10f; // Fuerza al saltar desde la pared.
+    [SerializeField] private float wallJumpForce = 15f; // Fuerza al saltar desde la pared.
     private bool isTouchingWall = false; // Indica si el jugador está tocando una pared.
     private bool isWallSliding = false; // Indica si el jugador está deslizándose por una pared.
     private Rigidbody2D rb; // Referencia al Rigidbody2D del jugador.

@@ -4,6 +4,7 @@ public class Papers : MonoBehaviour
 {
     public string itemName; // Nombre del objeto.
     public Sprite itemIcon; // Icono del objeto.
+    public Transform attachPoint; // Punto donde se adherirá el objeto.
 
     private bool playerInRange = false; // Indica si el jugador está en el rango del objeto.
     private Inventory playerInventory; // Referencia al inventario del jugador.
@@ -15,22 +16,21 @@ public class Papers : MonoBehaviour
 
     private void Start()
     {
-        // Validar que el layer exista.
-        if (LayerMask.LayerToName(gameObject.layer) == "heavyPaper")
+        // Determina el ajuste de velocidad según el layer del objeto.
+        switch (LayerMask.LayerToName(gameObject.layer))
         {
-            speedAdjustment = -1.5f; // Reducir significativamente la velocidad.
-        }
-        else if (LayerMask.LayerToName(gameObject.layer) == "midPaper")
-        {
-            speedAdjustment = -1f; // Reducir moderadamente la velocidad.
-        }
-        else if (LayerMask.LayerToName(gameObject.layer) == "lightPaper")
-        {
-            speedAdjustment = 0f; // Sin ajuste.
-        }
-        else
-        {
-            Debug.LogWarning($"El objeto {gameObject.name} tiene un layer desconocido.");
+            case "heavyPaper":
+                speedAdjustment = -1.5f;
+                break;
+            case "midPaper":
+                speedAdjustment = -1f;
+                break;
+            case "lightPaper":
+                speedAdjustment = 0f;
+                break;
+            default:
+                Debug.LogWarning($"El objeto {gameObject.name} tiene un layer desconocido.");
+                break;
         }
     }
 
@@ -51,12 +51,10 @@ public class Papers : MonoBehaviour
                 playerInventory.AddItem(this);
 
                 // Ajustamos la velocidad del jugador según el tipo de objeto.
-                if (playerMovement != null)
-                {
-                    playerMovement.AdjustSpeed(speedAdjustment);
-                }
+                playerMovement?.AdjustSpeed(speedAdjustment);
 
-                gameObject.SetActive(false); // Desactivamos este objeto en la escena.
+                // Adjuntamos el objeto al punto de agarre.
+                AttachToPlayer();
             }
         }
     }
@@ -65,16 +63,26 @@ public class Papers : MonoBehaviour
     {
         if (collision.CompareTag("Player"))
         {
-            playerInRange = true; // Jugador entra en el rango.
-            playerInventory = collision.GetComponent<Inventory>(); // Guardamos la referencia al inventario.
-            playerMovement = collision.GetComponent<Movement>(); // Guardamos la referencia al movimiento.
+            playerInRange = true;
+            playerInventory = collision.GetComponent<Inventory>();
+            playerMovement = collision.GetComponent<Movement>();
+
+            // Validar si el punto de agarre está asignado.
+            if (playerInventory != null && attachPoint == null)
+            {
+                attachPoint = playerInventory.transform.Find("AttachPoint");
+                if (attachPoint == null)
+                {
+                    Debug.LogWarning("El punto de agarre no está configurado en el jugador.");
+                }
+            }
         }
 
         // Detectamos si el objeto entra en la zona que vacía el inventario.
         if (collision.GetComponent<HolePatching>() != null)
         {
             inEmptyZone = true;
-            HandleEmptyZone(); // Manejar el comportamiento al entrar en la zona.
+            HandleEmptyZone();
         }
     }
 
@@ -82,9 +90,9 @@ public class Papers : MonoBehaviour
     {
         if (collision.CompareTag("Player"))
         {
-            playerInRange = false; // Jugador sale del rango.
-            playerInventory = null; // Eliminamos la referencia al inventario.
-            playerMovement = null; // Eliminamos la referencia al movimiento.
+            playerInRange = false;
+            playerInventory = null;
+            playerMovement = null;
         }
 
         // Detectamos si el objeto sale de la zona que vacía el inventario.
@@ -99,7 +107,6 @@ public class Papers : MonoBehaviour
         if (inEmptyZone && playerInventory != null && playerInventory.currentItem == this)
         {
             Debug.Log($"El objeto {itemName} fue destruido al entrar en la zona que vacía el inventario.");
-            Debug.Log(playerMovement + "PLAYYEEER");
 
             // Removemos el objeto del inventario.
             playerInventory.RemoveCurrentItem();
@@ -109,14 +116,29 @@ public class Papers : MonoBehaviour
         }
     }
 
+    private void AttachToPlayer()
+    {
+        if (attachPoint != null)
+        {
+            // Mueve el objeto al punto de agarre y lo hace hijo de este.
+            transform.SetParent(attachPoint);
+            transform.localPosition = Vector3.zero;
+            transform.localRotation = Quaternion.identity;
+
+            Debug.Log($"El objeto {itemName} se ha adherido al jugador.");
+        }
+        else
+        {
+            Debug.LogWarning("El punto de agarre no está asignado.");
+        }
+    }
+
     private void DropItem(Papers itemToDrop)
     {
         Debug.Log($"Soltaste: {itemToDrop.itemName}");
 
-        // Activamos el objeto soltado y lo colocamos en la posición del jugador.
-        itemToDrop.gameObject.SetActive(true);
+        // Desacopla el objeto y lo coloca en la posición actual del jugador.
+        itemToDrop.transform.SetParent(null);
         itemToDrop.transform.position = playerInventory.transform.position;
-        itemToDrop.transform.SetParent(null); // Lo desacoplamos del jugador.
-
     }
 }

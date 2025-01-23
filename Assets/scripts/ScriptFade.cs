@@ -6,8 +6,10 @@ public class ScreenFade : MonoBehaviour
 {
     public Image blackScreen; // Arrastra la imagen negra aquí desde el inspector.
     public float fadeDuration = 1f; // Tiempo para desvanecer la pantalla.
+    public float cooldownTime = 5f; // Tiempo de espera antes de poder volver a usar la transición.
 
     private float currentFadeAlpha = 0f; // Almacena la opacidad actual del fade.
+    private bool canFade = true; // Indica si el jugador puede activar la transición.
 
     private void Start()
     {
@@ -18,7 +20,19 @@ public class ScreenFade : MonoBehaviour
     // Método para oscurecer y luego mostrar la pantalla nuevamente.
     public void FadeToBlackAndBack(float delay)
     {
-        StartCoroutine(FadeSequence(delay));
+        if (canFade)
+        {
+            StartCoroutine(FadeSequenceWithCooldown(delay));
+        }
+    }
+
+    // Secuencia de desvanecimiento con cooldown.
+    private IEnumerator FadeSequenceWithCooldown(float delay)
+    {
+        canFade = false; // Bloquea la transición.
+        yield return StartCoroutine(FadeSequence(delay)); // Realiza la secuencia de fade.
+        yield return new WaitForSeconds(cooldownTime); // Espera antes de permitir la próxima transición.
+        canFade = true; // Permite nuevamente la transición.
     }
 
     // Secuencia de desvanecimiento.

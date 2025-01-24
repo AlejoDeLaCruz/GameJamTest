@@ -5,7 +5,7 @@ public class ItemSpawner : MonoBehaviour
 {
     public GameObject[] itemPrefabs; // Array para los diferentes prefabs de objetos.
     public Transform[] spawnPoints; // Los puntos de aparición (los objetos vacíos en el mapa).
-    public float spawnInterval = 15f; // Intervalo de tiempo para que el objeto aparezca de nuevo.
+    public float spawnInterval = 25f; // Intervalo de tiempo para que el objeto aparezca de nuevo.
 
     private void Start()
     {
